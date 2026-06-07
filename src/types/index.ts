@@ -44,6 +44,7 @@ export interface AppSettings {
   monthlyBudget: number;
   currency: string;
   userName: string;
+  displayName: string;
   notificationsEnabled: boolean;
   reminderHour: number;
   reminderMinute: number;

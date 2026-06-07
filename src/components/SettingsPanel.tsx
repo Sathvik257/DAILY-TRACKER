@@ -114,14 +114,15 @@ export function SettingsPanel({
 
       <div className="settings-form">
         <div className="field">
-          <label htmlFor="userName">Name</label>
+          <label htmlFor="displayName">Display name</label>
           <input
-            id="userName"
+            id="displayName"
             type="text"
-            placeholder="Shows in greeting"
-            value={settings.userName}
-            onChange={(e) => onUpdate({ userName: e.target.value })}
+            placeholder="Name shown on your dashboard"
+            value={settings.displayName}
+            onChange={(e) => onUpdate({ displayName: e.target.value })}
           />
+          <span className="field-hint">This is the name you see in the greeting — choose anything you like.</span>
         </div>
 
         <div className="form-row">

@@ -1,5 +1,4 @@
 import type { StoredData } from '../types';
-
 import { APP_STORAGE_PREFIX } from '../constants/brand';
 
 const TOKEN_KEY = `${APP_STORAGE_PREFIX}-token`;
@@ -37,6 +36,22 @@ export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+async function parseResponse(res: Response): Promise<Record<string, unknown>> {
+  const text = await res.text();
+  if (!text) return {};
+  try {
+    return JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    if (res.status === 404) {
+      throw new ApiError(
+        'API not found. Redeploy with database configured (see README).',
+        404
+      );
+    }
+    throw new ApiError('Server returned an invalid response', res.status);
+  }
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
@@ -45,17 +60,24 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const res = await fetch(`/api${path}`, { ...options, headers });
-  const body = await res.json().catch(() => ({}));
+  let res: Response;
+  try {
+    res = await fetch(`/api${path}`, { ...options, headers });
+  } catch {
+    throw new ApiError('Cannot reach server. Check your internet connection.', 0);
+  }
+
+  const body = await parseResponse(res);
+  const errorMsg = typeof body.error === 'string' ? body.error : 'Something went wrong';
 
   if (res.status === 401) {
     clearToken();
     onUnauthorized?.();
-    throw new ApiError(body.error || 'Session expired', 401);
+    throw new ApiError(errorMsg, 401);
   }
 
   if (!res.ok) {
-    throw new ApiError(body.error || 'Something went wrong', res.status);
+    throw new ApiError(errorMsg, res.status);
   }
 
   return body as T;

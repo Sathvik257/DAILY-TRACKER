@@ -21,6 +21,7 @@ export function useTracker(enabled: boolean) {
     monthlyBudget: 15000,
     currency: '₹',
     userName: '',
+    displayName: '',
     notificationsEnabled: false,
     reminderHour: 8,
     reminderMinute: 0,

@@ -8,6 +8,7 @@ const defaultSettings: AppSettings = {
   monthlyBudget: DEFAULT_MONTHLY_BUDGET,
   currency: DEFAULT_CURRENCY,
   userName: '',
+  displayName: '',
   notificationsEnabled: false,
   reminderHour: 8,
   reminderMinute: 0,
@@ -100,6 +101,10 @@ function migrateSettings(settings: Partial<AppSettings>): AppSettings {
 
   if (merged.reminderMinute === undefined) {
     merged.reminderMinute = 0;
+  }
+
+  if (merged.displayName === undefined) {
+    merged.displayName = merged.userName ?? '';
   }
 
   return merged;

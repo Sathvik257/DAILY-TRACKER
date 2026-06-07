@@ -63,7 +63,7 @@ function Dashboard() {
     enabled: settings.notificationsEnabled && !!user?.id,
     hour: settings.reminderHour,
     minute: settings.reminderMinute,
-    userName: settings.userName,
+    userName: settings.displayName || settings.userName,
     pendingCount,
   });
 
@@ -97,7 +97,7 @@ function Dashboard() {
           selectedDate={selectedDate}
           isToday={isToday}
           streak={streak}
-          userName={settings.userName}
+          userName={settings.displayName || settings.userName}
           userEmail={user?.email ?? ''}
           saveStatus={saveStatus}
           onDateChange={setSelectedDate}
