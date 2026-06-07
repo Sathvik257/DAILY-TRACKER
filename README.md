@@ -6,7 +6,7 @@ Live example: [daily-tracker-navy.vercel.app](https://daily-tracker-navy.vercel.
 
 ## Fix Vercel deployment (required env vars)
 
-If sign-up shows **"Something went wrong"**, the API database is not configured. Vercel only hosts the frontend unless you add these **Environment Variables** in your Vercel project � Settings � Environment Variables:
+If sign-up shows **"Something went wrong"**, the API database is not configured. Vercel only hosts the frontend unless you add these **Environment Variables** in your Vercel project → Settings → Environment Variables:
 
 | Variable | Value |
 |----------|--------|
@@ -20,7 +20,7 @@ If sign-up shows **"Something went wrong"**, the API database is not configured.
 2. Create a new database (e.g. `daily-tracker`)
 3. Copy the database URL and create an auth token
 4. Paste both into Vercel environment variables
-5. **Redeploy** the project (Deployments � � � Redeploy)
+5. **Redeploy** the project (Deployments → ⋯ → Redeploy)
 
 After redeploy, `/api/health` should return `{ "ok": true, "database": true }`.
 
@@ -42,7 +42,7 @@ Local dev uses a SQLite file in `./data/` automatically. Optional: set Turso env
 - Custom **display name** in Settings (shown in greeting)
 - Daily tasks (repeat every day), expenses, mood, analysis
 - Daily reminders (browser notifications)
-- Indian Rupees (�) budgeting
+- Indian Rupees (₹) budgeting
 
 ## Deploy to Vercel
 
