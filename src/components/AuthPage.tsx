@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ApiError, useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
+import { isApiError } from '../api/client';
 import { APP_NAME, APP_TAGLINE } from '../constants/brand';
 import './AuthPage.css';
 
@@ -24,7 +25,7 @@ export function AuthPage() {
         await register(email, password, name);
       }
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong');
+      setError(isApiError(err) ? err.message : 'Something went wrong');
     } finally {
       setBusy(false);
     }

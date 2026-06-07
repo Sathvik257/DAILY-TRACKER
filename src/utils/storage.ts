@@ -36,7 +36,8 @@ export function createEmptyEntry(date: string): DailyEntry {
 
 function migrateEntry(entry: LegacyEntry): DailyEntry {
   const base = createEmptyEntry(entry.date);
-  const { tasks: _tasks, ...rest } = entry;
+  const rest = { ...entry };
+  delete rest.tasks;
   return {
     ...base,
     ...rest,

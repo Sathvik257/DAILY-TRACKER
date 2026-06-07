@@ -14,10 +14,16 @@ export interface User {
 
 export class ApiError extends Error {
   status: number;
+  __isApiError = true;
   constructor(message: string, status: number) {
     super(message);
     this.status = status;
+    Object.setPrototypeOf(this, ApiError.prototype);
   }
+}
+
+export function isApiError(err: unknown): err is ApiError {
+  return err instanceof ApiError || (typeof err === 'object' && err !== null && '__isApiError' in err);
 }
 
 export function setUnauthorizedHandler(handler: UnauthorizedHandler): void {

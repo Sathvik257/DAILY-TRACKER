@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="../types/jsonwebtoken.d.ts" />
 import jwt from 'jsonwebtoken';
 import { ensureSchema } from './db.js';

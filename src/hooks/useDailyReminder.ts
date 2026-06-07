@@ -30,6 +30,7 @@ export function useDailyReminder({
 }: UseDailyReminderOptions) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const firingRef = useRef(false);
+  const scheduleNextRef = useRef<() => void>(() => {});
 
   const fireReminder = useCallback(async (test = false) => {
     if (!enabled && !test) return;
@@ -76,9 +77,13 @@ export function useDailyReminder({
     const ms = msUntilNextReminder(hour, minute);
     timerRef.current = setTimeout(() => {
       void fireReminder();
-      scheduleNext();
+      scheduleNextRef.current();
     }, ms + 500);
   }, [enabled, hour, minute, fireReminder]);
+
+  useEffect(() => {
+    scheduleNextRef.current = scheduleNext;
+  }, [scheduleNext]);
 
   useEffect(() => {
     syncReminderToServiceWorker({

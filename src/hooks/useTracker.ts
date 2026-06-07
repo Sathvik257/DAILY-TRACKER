@@ -41,8 +41,10 @@ export function useTracker(enabled: boolean) {
   useEffect(() => {
     if (!enabled) return;
 
-    setSaveStatus('loading');
-    setHydrated(false);
+    Promise.resolve().then(() => {
+      setSaveStatus('loading');
+      setHydrated(false);
+    });
 
     fetchData()
       .then((data) => {
@@ -61,7 +63,9 @@ export function useTracker(enabled: boolean) {
   useEffect(() => {
     if (!enabled || !hydrated) return;
 
-    setSaveStatus('saving');
+    Promise.resolve().then(() => {
+      setSaveStatus('saving');
+    });
     if (saveTimer.current) clearTimeout(saveTimer.current);
 
     saveTimer.current = setTimeout(() => {
