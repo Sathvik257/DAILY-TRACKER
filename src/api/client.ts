@@ -2,6 +2,7 @@ import type { StoredData } from '../types';
 import { APP_STORAGE_PREFIX } from '../constants/brand';
 
 const TOKEN_KEY = `${APP_STORAGE_PREFIX}-token`;
+const LOCAL_DATA_KEY = `${APP_STORAGE_PREFIX}-local-data`;
 
 type UnauthorizedHandler = () => void;
 let onUnauthorized: UnauthorizedHandler | null = null;
@@ -108,13 +109,51 @@ export async function fetchMe() {
 }
 
 export async function fetchData(): Promise<StoredData> {
-  return request<StoredData>('/data');
+  try {
+    const data = await request<StoredData>('/data');
+    localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify(data));
+    return data;
+  } catch (err) {
+    console.warn('API fetch failed, falling back to local storage:', err);
+    const cached = localStorage.getItem(LOCAL_DATA_KEY);
+    if (cached) {
+      try {
+        return JSON.parse(cached) as StoredData;
+      } catch {
+        // ignore parsing error
+      }
+    }
+    return {
+      entries: {},
+      recurringTasks: [],
+      settings: {
+        dailyBudget: 500,
+        monthlyBudget: 15000,
+        currency: '₹',
+        userName: 'Sathvik',
+        displayName: 'Sathvik',
+        notificationsEnabled: false,
+        reminderHour: 8,
+        reminderMinute: 0,
+      },
+    };
+  }
 }
 
 export async function saveData(data: StoredData): Promise<void> {
-  await request('/data', { method: 'PUT', body: JSON.stringify(data) });
+  localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify(data));
+  try {
+    await request('/data', { method: 'PUT', body: JSON.stringify(data) });
+  } catch (err) {
+    console.warn('API save failed, data is saved locally:', err);
+  }
 }
 
 export async function resetServerData(): Promise<void> {
-  await request('/data', { method: 'DELETE' });
+  localStorage.removeItem(LOCAL_DATA_KEY);
+  try {
+    await request('/data', { method: 'DELETE' });
+  } catch (err) {
+    console.warn('API reset failed:', err);
+  }
 }

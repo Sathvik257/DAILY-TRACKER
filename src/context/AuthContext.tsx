@@ -1,6 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import {
-  clearToken,
   fetchMe,
   getToken,
   login as apiLogin,
@@ -9,7 +8,6 @@ import {
   setUnauthorizedHandler,
   type User,
 } from '../api/client';
-import { clearLegacyLocalStorage } from '../utils/storage';
 
 interface AuthContextValue {
   user: User | null;
@@ -23,13 +21,9 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(() => !!getToken());
+  const [loading, setLoading] = useState(true);
 
-  const logout = useCallback(() => {
-    clearToken();
-    clearLegacyLocalStorage();
-    setUser(null);
-  }, []);
+  const logout = useCallback(() => {}, []);
 
   useEffect(() => {
     setUnauthorizedHandler(() => setUser(null));
@@ -37,30 +31,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    const defaultEmail = 'guest@dailytracker.local';
+    const defaultPassword = 'guest-password-123';
+    const defaultName = 'Sathvik';
+
+    const handleOfflineFallback = () => {
+      const mockUser: User = {
+        id: 'local-guest-id',
+        email: defaultEmail,
+        name: defaultName,
+      };
+      setUser(mockUser);
+      setLoading(false);
+    };
+
+    const runAutoAuth = () => {
+      apiLogin(defaultEmail, defaultPassword)
+        .then(({ token, user }) => {
+          setToken(token);
+          setUser(user);
+          setLoading(false);
+        })
+        .catch(() => {
+          apiRegister(defaultEmail, defaultPassword, defaultName)
+            .then(({ token, user }) => {
+              setToken(token);
+              setUser(user);
+              setLoading(false);
+            })
+            .catch(() => {
+              handleOfflineFallback();
+            });
+        });
+    };
+
     const token = getToken();
     if (!token) {
+      runAutoAuth();
       return;
     }
 
     fetchMe()
-      .then(({ user }) => setUser(user))
-      .catch(() => {
-        clearToken();
-        clearLegacyLocalStorage();
-        setUser(null);
+      .then(({ user }) => {
+        setUser(user);
+        setLoading(false);
       })
-      .finally(() => setLoading(false));
+      .catch(() => {
+        runAutoAuth();
+      });
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    clearLegacyLocalStorage();
     const { token, user } = await apiLogin(email, password);
     setToken(token);
     setUser(user);
   }, []);
 
   const register = useCallback(async (email: string, password: string, name: string) => {
-    clearLegacyLocalStorage();
     const { token, user } = await apiRegister(email, password, name);
     setToken(token);
     setUser(user);

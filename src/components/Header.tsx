@@ -1,5 +1,5 @@
 import { format, parseISO } from 'date-fns';
-import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { APP_NAME, APP_TAGLINE } from '../constants/brand';
 
 interface HeaderProps {
@@ -7,11 +7,9 @@ interface HeaderProps {
   isToday: boolean;
   streak: number;
   userName: string;
-  userEmail: string;
   saveStatus: 'saved' | 'saving' | 'loading';
   onDateChange: (date: string) => void;
   onGoToToday: () => void;
-  onLogout: () => void;
 }
 
 export function Header({
@@ -19,11 +17,9 @@ export function Header({
   isToday,
   streak,
   userName,
-  userEmail,
   saveStatus,
   onDateChange,
   onGoToToday,
-  onLogout,
 }: HeaderProps) {
   const date = parseISO(selectedDate);
   const displayDate = format(date, 'EEEE, d MMMM');
@@ -56,10 +52,6 @@ export function Header({
         <div className="header-meta">
           <span className={`sync-dot ${saveStatus}`} title={syncLabel} />
           {streak > 0 && <span className="streak-pill">{streak}d streak</span>}
-          <button type="button" className="logout-btn" onClick={onLogout} title="Sign out">
-            <LogOut size={15} />
-            <span className="logout-email">{userEmail}</span>
-          </button>
         </div>
       </div>
 

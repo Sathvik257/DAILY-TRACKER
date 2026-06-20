@@ -1,10 +1,10 @@
-import { AuthPage } from './components/AuthPage';
 import { APP_NAME } from './constants/brand';
 import { DailyAnalysis } from './components/DailyAnalysis';
 import { DailyWellness } from './components/DailyWellness';
 import { ExpenseTracker } from './components/ExpenseTracker';
 import { Header } from './components/Header';
 import { MonthCalendar } from './components/MonthCalendar';
+import { MonthlyInsights } from './components/MonthlyInsights';
 import { NavBar } from './components/NavBar';
 import { SafeSpend } from './components/SafeSpend';
 import { SettingsPanel } from './components/SettingsPanel';
@@ -17,13 +17,15 @@ import { requestNotificationPermission } from './utils/reminders';
 import './App.css';
 
 function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const {
     selectedDate,
     setSelectedDate,
     view,
     setView,
+    entries,
     entry,
+    recurringTasks,
     tasks,
     settings,
     isToday,
@@ -98,11 +100,9 @@ function Dashboard() {
           isToday={isToday}
           streak={streak}
           userName={settings.displayName || settings.userName}
-          userEmail={user?.email ?? ''}
           saveStatus={saveStatus}
           onDateChange={setSelectedDate}
           onGoToToday={goToToday}
-          onLogout={logout}
         />
 
         <NavBar view={view} onViewChange={setView} />
@@ -159,6 +159,11 @@ function Dashboard() {
         {view === 'overview' && (
           <>
             <MonthCalendar days={monthCalendar} onSelectDate={handleCalendarSelect} />
+            <MonthlyInsights
+              entries={entries}
+              recurringTasks={recurringTasks}
+              settings={settings}
+            />
             <WeekChart data={weekStats} currency={settings.currency} />
             <DailyAnalysis
               analysis={analysis}
@@ -183,7 +188,7 @@ function Dashboard() {
       </div>
 
       <footer className="footer">
-        <p>Signed in as {user?.email}. Only you can see this data.</p>
+        <p>Your tasks and spending are private to this account. Only you can see this data.</p>
       </footer>
     </div>
   );
@@ -192,17 +197,13 @@ function Dashboard() {
 function App() {
   const { user, loading } = useAuth();
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <div className="app-loading">
         <span className="brand-mark">{APP_NAME}</span>
         <p>Loading…</p>
       </div>
     );
-  }
-
-  if (!user) {
-    return <AuthPage />;
   }
 
   return <Dashboard key={user.id} />;
